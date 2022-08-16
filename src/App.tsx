@@ -1,34 +1,29 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-
-function App() {
-  const [count, setCount] = useState(0)
-
+import './styles.css';
+import React from 'react';
+import Reminder from './models/Reminder';
+import ReminderList from './components/ReminderList';
+import ReminderService from './services/reminders';
+import NewReminder from './components/NewReminder';
+export default function App() {
+  const [reminder, setReminder] = React.useState<Reminder[]>([]);
+  React.useEffect(() => {
+    loadReminders();
+  }, []);
+  const loadReminders = async () => {
+    const reminders = await ReminderService.getReminders();
+    setReminder(reminders);
+  };
+  const removeReminder = async (id: number) => {
+    setReminder(reminder.filter((reminder) => reminder.id !== id));
+  };
+  const addReminder = async (title: string) => {
+    const newReminder = await ReminderService.addReminder(title);
+    setReminder([newReminder, ...reminder]);
+  };
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <div className='App'>
+      <NewReminder onAddReminder={addReminder} />
+      <ReminderList items={reminder} onRemoveReminder={removeReminder} />
     </div>
-  )
+  );
 }
-
-export default App
